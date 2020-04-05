@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import Button from '../../../components/UI/Button/Button';
-import Spinner from '../../../components/UI/Spinner/Spinner';
+import Spinner from '../../../components/UI/Loader/Loader';
 import classes from './ContactData.css';
 import axios from '../../../axios-orders';
 import Input from '../../../components/UI/Input/Input';
@@ -21,6 +21,20 @@ class ContactData extends Component {
                 value: '',
                 validation: {
                     required: true
+                },
+                valid: false,
+                touched: false
+            },
+            email: {
+                elementType: 'input',
+                elementConfig: {
+                    type: 'email',
+                    placeholder: 'Your E-Mail'
+                },
+                value: '',
+                validation: {
+                    required: true,
+                    isEmail: true
                 },
                 valid: false,
                 touched: false
@@ -53,43 +67,16 @@ class ContactData extends Component {
                 },
                 valid: false,
                 touched: false
-            },
-            country: {
-                elementType: 'input',
-                elementConfig: {
-                    type: 'text',
-                    placeholder: 'Country'
-                },
-                value: '',
-                validation: {
-                    required: true
-                },
-                valid: false,
-                touched: false
-            },
-            email: {
-                elementType: 'input',
-                elementConfig: {
-                    type: 'email',
-                    placeholder: 'Your E-Mail'
-                },
-                value: '',
-                validation: {
-                    required: true,
-                    isEmail: true
-                },
-                valid: false,
-                touched: false
-            },
-            deliveryMethod: {
+            },           
+            paymentMethod: {
                 elementType: 'select',
                 elementConfig: {
                     options: [
-                        {value: 'fastest', displayValue: 'Fastest'},
-                        {value: 'cheapest', displayValue: 'Cheapest'}
+                        {value: 'cash', displayValue: 'Cash'},
+                        {value: 'cardt', displayValue: 'Card'}
                     ]
                 },
-                value: 'fastest',
+                value: 'cash',
                 validation: {},
                 valid: true
             }
@@ -107,10 +94,11 @@ class ContactData extends Component {
         const order = {
             ingredients: this.props.ings,
             price: this.props.price,
-            orderData: formData
+            orderData: formData,
+            userId: this.props.userId
         }
 
-        this.props.onOrderBurger(order);
+        this.props.onOrderBurger(order, this.props.token);
         
     }
 
@@ -204,13 +192,15 @@ const mapStateToProps = state => {
     return {
         ings: state.burgerBuilder.ingredients,
         price: state.burgerBuilder.totalPrice,
-        loading: state.order.loading
+        loading: state.order.loading,
+        token: state.auth.token,
+        userId: state.auth.userId
     }
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        onOrderBurger: (orderData) => dispatch(actions.purchaseBurger(orderData))
+        onOrderBurger: (orderData, token) => dispatch(actions.purchaseBurger(orderData, token))
     };
 };
 
